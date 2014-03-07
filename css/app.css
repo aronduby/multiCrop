@@ -1,0 +1,158 @@
+/* not part of plugin */
+.multi-crop .img-holder .json{
+  display:none;
+}
+
+.multi-crop{
+  position:relative;
+  width:100%;
+}
+
+  .multi-crop .img-holder,
+  .multi-crop .bound-data{
+    vertical-align:top;
+  }
+
+    /*
+     *  Image Holder - left side, has bounds
+    */
+    .multi-crop .img-holder{
+      box-sizing:border-box;
+      -moz-box-sizing:border-box;
+      display:inline-block;
+      width:80%;
+      padding:2px;
+      line-height:0;
+      background:#000;
+    }
+      .multi-crop .img-holder img{
+        max-width:100%;
+        pointer-events:none;
+        opacity:1;
+      }
+      .multi-crop .img-holder.dim img{
+        opacity:.5;
+      }
+
+      .multi-crop .bound{
+        position:absolute;
+        top:0; left:0;
+        width:100px;
+        height:100px;
+        border:2px dashed #f00;
+        cursor:move;
+        background-clip:padding-box;
+        background-repeat:no-repeat;
+        transition:
+          box-shadow ease .2s,
+          opacity ease .2s;
+      }
+
+        .multi-crop .img-holder.dim .bound{
+          opacity:.1;
+        }
+        .multi-crop .bound.hover,
+        .multi-crop .img-holder.dim .bound.hover,
+        .multi-crop .img-holder.dim .bound.ui-draggable-dragging,
+        .multi-crop .img-holder.dim .bound.ui-resizable-resizing{
+          box-shadow:0 0 11px;
+          opacity:1;
+        }
+        .multi-crop .bound.active{
+          box-shadow:0 0 22px;
+          opacity:1;
+        }
+          .multi-crop .bound label{
+            position:absolute;
+            top:-1.6em;
+            font-size:.8571em;
+            line-height:1.6em;
+            color:#333;
+            padding:0 .5em;
+            background:rgba(255,255,255,.5);
+            border-radius:4px 4px 0 0;
+          }
+
+    
+    /*
+     *  Bounds Data - right side
+    */
+    .multi-crop .bounds-data{
+      display:inline-block;
+      width:20%;
+      min-width:220px;
+      line-height:1.4em;
+    }
+
+      .multi-crop .bounds-data ul{
+        list-style:none;
+        margin:0;
+        padding:0 10px;
+      }
+        .multi-crop .bounds-data li{
+          padding:4px 8px;
+          margin:2px 0;
+          border-left:5px solid #f00;
+          opacity:.5;/* was diming with interaction, decided I didn't like that */
+          opacity:1;
+        }
+        .multi-crop .bounds-data li:hover,
+        .multi-crop .bounds-data li.hover{
+          opacity:.8;
+          opacity:1;
+        }
+        .multi-crop .bounds-data li.active{
+          opacity:1;
+        }
+
+        .multi-crop .bounds-data p{
+          margin:0 0 5px 0;
+        }
+
+        .multi-crop .bounds-data canvas{
+          max-width:100%;
+        }
+
+
+.multi-crop .btn-group{
+  margin-left:5px;
+}
+  .multi-crop .btn-group:first-child{
+    margin-left:0;
+  }
+
+  .multi-crop button.btn{
+    border:0;
+    text-indent:-999px;
+    width:25px;
+    height:25px;
+    cursor:pointer;
+    background-position:50%;
+    background-repeat:no-repeat;
+    background-color:#e5e5e5;
+    border-right:1px solid #ccc;
+    overflow:hidden;
+    opacity:.75;
+  }
+    .multi-crop .btn:hover{
+      opacity:1;
+    }
+    .multi-crop .btn.alignTop{ background-image:url(../imgs/shape_align_top.png); }
+    .multi-crop .btn.alignMiddle{ background-image:url(../imgs/shape_align_middle.png); }
+    .multi-crop .btn.alignBottom{ background-image:url(../imgs/shape_align_bottom.png); }
+    .multi-crop .btn.alignLeft{ background-image:url(../imgs/shape_align_left.png); }
+    .multi-crop .btn.alignCenter{ background-image:url(../imgs/shape_align_center.png); }
+    .multi-crop .btn.alignRight{ background-image:url(../imgs/shape_align_right.png); }
+    .multi-crop .btn.maximize{ background-image:url(../imgs/arrow_out.png); }
+
+  .multi-crop .btn-group > .btn:first-child{
+    border-radius:2px 0 0 2px;
+  }
+  .multi-crop .btn-group > .btn:last-child{
+    border-radius:0 2px 2px 0;
+    border-right:none;
+  }
+  .multi-crop .btn-group > .btn:first-child:last-child{
+    border-radius:2px;
+  }
+
