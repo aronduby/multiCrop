@@ -3,23 +3,20 @@ $(document).ready(function(){
 	$('img.crop').each(function(){
 		$(this).data('mc', new MultiCrop($(this),{
 			bounds: [{
-					"name":"Banner",
+					"name": "fit",
+					"type": 'fit',
+					'finalWidth': 800,
+					'finalHeight': 800
+				}, {
+					"name":"banner",
 					"aspectRatio":1.7778,
-					"top":0,
-					"left":0,		  
-					"width":160,
-					"height":90,
 					"finalWidth": 640,
 					"finalHeight": 360
 				}, {
-					"name":"Thumbnail",
+					"name":"thumbnail",
 					"aspectRatio":1,
-					"top":100,
-					"left":100,
-					"width":100,
-					"height":100,
 					"finalWidth": 100,
-					"finalHeight": 100
+					"finalHeight": 100				
 			}]
 		}));
 	});
@@ -42,7 +39,9 @@ function MultiCrop(org_img, opts){
 		_colors = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Grey","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGray","LightGrey","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"],
 		_colors_i = 10;
 
-	org_img.replaceWith(_mc_parent_el);
+	org_img.hide();
+	// replaceWith(_mc_parent_el);
+	_mc_parent_el.insertAfter(org_img);
 
 	var _obj = {
 		el: _mc_parent_el,
@@ -71,6 +70,11 @@ function MultiCrop(org_img, opts){
 		},
 		undim: function(){
 			this.img_holder.removeClass('dim');
+		},
+		save: function(){
+			$.each(this.bounds, function(){
+				this.save();
+			});
 		}
 	};
 
@@ -144,10 +148,11 @@ function Bound(d, color, _parent, bg_src){
 		canvas = $('<canvas></canvas>');
 
 	var opts = {
+		type: 'exact',
 		finalWidth: 100,
 		finalHeight: 100,
-		height: 0,
 		width: 0,
+		height: 0,
 		top: 0,
 		left: 0,
 		borderColor: color,
@@ -177,23 +182,46 @@ function Bound(d, color, _parent, bg_src){
 	}
 
 	var _updateThumb = function(el){
+		
+
 		var ctx = _obj.canvas[0].getContext('2d'),
 			p = el.position(),
 			ratio = _parent.img.width() / _parent.img.attr('data-org-width'),
 			bW = parseInt(_obj.bound_el.css('borderLeftWidth'),10) + parseInt(_obj.bound_el.css('borderRightWidth'), 10),
 			bH = parseInt(_obj.bound_el.css('borderTopWidth'),10) + parseInt(_obj.bound_el.css('borderBottomWidth'), 10),
-			o = {
-				sX: Math.round(p.left / ratio),
-				sY: Math.round(p.top / ratio),
-				sWidth: Math.round(el.width() / ratio) - bW,
-				sHeight: Math.round(el.height() / ratio) - bH,
-				dX: 0,
-				dY: 0,
-				dWidth: _obj.opts.finalWidth,
-				dHeight: _obj.opts.finalHeight
-			};
-		
-		// try basing it off the orginal width/height
+			dWidth, dHeight
+
+		// update the canvas size based on the size of the bounds
+		// change the finalWidth/height to the new size
+		if(_obj.opts.type == 'fit'){
+
+			if(el.width()/_obj.opts.finalWidth > el.height()/_obj.opts.finalHeight){
+				dWidth = _obj.opts.finalWidth;
+				dHeight = el.height() * (_obj.opts.finalWidth / el.width());
+			} else {
+				dWidth = el.width() * (_obj.opts.finalHeight / el.height());
+				dHeight = _obj.opts.finalHeight;
+			}
+
+			_obj.canvas.attr({
+				'width': Math.round(dWidth),
+				'height': Math.round(dHeight)
+			});
+		} else {
+			dWidth = _obj.opts.finalWidth;
+			dHeight = _obj.opts.finalHeight;
+		}
+
+		var o = {
+			sX: Math.round(p.left / ratio),
+			sY: Math.round(p.top / ratio),
+			sWidth: Math.round((el.width() - bW) / ratio),
+			sHeight: Math.round((el.height() - bH) / ratio),
+			dX: 0,
+			dY: 0,
+			dWidth: dWidth,
+			dHeight: dHeight
+		};
 		
 		ctx.drawImage(_parent.org_img[0], o.sX, o.sY, o.sWidth, o.sHeight, o.dX, o.dY, o.dWidth, o.dHeight);
 	};
@@ -223,6 +251,17 @@ function Bound(d, color, _parent, bg_src){
 			_positionBackground(this.bound_el);
 			_updateThumb(this.bound_el);
 			this.calculateArea();
+		},
+		toDataURL: function(){ return this.toDataUrl(); },
+		toDataUrl: function(){
+			return this.canvas[0].toDataURL();
+		},
+		save: function(){
+			this.data_el.find('textarea').val(this.toDataUrl());
+		},
+		bringToFront: function(){
+			triggerParentEvent('restack');
+			this.bound_el.css('zIndex', Bound.count + 1);
 		},
 		alignTop: function(){
 			$(this.bound_el).css('top', 0);
@@ -264,6 +303,12 @@ function Bound(d, color, _parent, bg_src){
 				eR = this.opts.aspectRatio!==null ? this.opts.aspectRatio : 0,
 				dims = [];
 
+			// issues when it's first called when the bounds w/h hasn't been set
+			if(eW == 0 || eH == 0){
+				eW = eW ? eW : 10;
+				eH = eR ? Math.round(eW / eR) : 10;
+			}
+
 
 			// rs > ri ? (wi * hs/hi, hs) : (ws, hi * ws/wi)
 			// ratioScreen > ratioImage ? (widthImage * heightScreen/heightImage, heightScreen) : (widthScreen, heightImage * widthScreen/widthImage)
@@ -288,6 +333,8 @@ function Bound(d, color, _parent, bg_src){
 	var btns = $(),
 		actions = [
 			{
+				'bringToFront': 'Bring to Front'
+			}, {
 				'alignTop': 'Top',
 				'alignMiddle': 'Middle',
 				'alignBottom': 'Bottom',
@@ -310,7 +357,8 @@ function Bound(d, color, _parent, bg_src){
 		.append($('<p class="name">'+(d.name ? d.name : 'untitled')+'</p>'))
 		.append($('<p class="btns"></p>').append(btns))
 		.append(canvas)
-		.append('<p class="note">final size: '+opts.finalWidth+'x'+opts.finalHeight+'</p>')
+		.append('<p class="note">'+(opts.type=='fit' ? 'fit within: ':"final size: ")+opts.finalWidth+'x'+opts.finalHeight+'</p>')
+		.append('<textarea name="'+(opts.name)+'"></textarea>')
 		.css('borderColor', color);
 	bound_el.append('<label>'+(d.name ? d.name : 'untitled')+'</label>');
 
@@ -331,8 +379,8 @@ function Bound(d, color, _parent, bg_src){
 				delta = eW/sW
 				nT = Math.round(_obj.bound_el.position().top * delta),
 				nL = Math.round(_obj.bound_el.position().left * delta),
-				nW = Math.round(_obj.bound_el.width() * delta) - bW,
-				nH = Math.round(_obj.bound_el.height() * delta) - bH;
+				nW = Math.round(_obj.bound_el.width() * delta),
+				nH = Math.round(_obj.bound_el.height() * delta);
 			
 			_obj.bound_el.css({
 				top: nT,
@@ -348,6 +396,9 @@ function Bound(d, color, _parent, bg_src){
 	});
 
 	_parent.img.on('load', function(){
+		if(_obj.opts.width == 0 || _obj.opts.height == 0)
+			_obj.maximize();
+
 		_obj.update();
 	});
 
@@ -389,7 +440,10 @@ function Bound(d, color, _parent, bg_src){
 
 	// resizable
 	bound_el.resizable({
-		containment: opts.containment,
+		containment: {
+			container: opts.containment,
+			resizeInPadding: true
+		},
 		handles: opts.handles,
 		aspectRatio: opts.aspectRatio,
 		minWidth: opts.minWidth,
@@ -414,7 +468,10 @@ function Bound(d, color, _parent, bg_src){
 
 	// draggable
 	bound_el.draggable({
-		containment: opts.containment,
+		containment: {
+			container: opts.containment,
+			dragInPadding: true
+		},
 		
 		drag: function(){
 			_obj.update();

@@ -17,8 +17,7 @@
      *  Image Holder - left side, has bounds
     */
     .multi-crop .img-holder{
-      box-sizing:border-box;
-      -moz-box-sizing:border-box;
+      
       display:inline-block;
       width:80%;
       padding:2px;
@@ -71,6 +70,7 @@
             padding:0 .5em;
             background:rgba(255,255,255,.5);
             border-radius:4px 4px 0 0;
+            text-transform:capitalize;
           }
 
     
@@ -108,10 +108,18 @@
         .multi-crop .bounds-data p{
           margin:0 0 5px 0;
         }
+          .multi-crop .bounds-data p.name{
+            text-transform:capitalize;
+          }
 
         .multi-crop .bounds-data canvas{
           max-width:100%;
+          max-height:200px;
         }
+
+      .multi-crop .bounds-data textarea{
+        display:none;
+      }
 
 
 .multi-crop .btn-group{
@@ -137,6 +145,7 @@
     .multi-crop .btn:hover{
       opacity:1;
     }
+    .multi-crop .btn.bringToFront{ background-image:url(../imgs/shape_move_front.png); }
     .multi-crop .btn.alignTop{ background-image:url(../imgs/shape_align_top.png); }
     .multi-crop .btn.alignMiddle{ background-image:url(../imgs/shape_align_middle.png); }
     .multi-crop .btn.alignBottom{ background-image:url(../imgs/shape_align_bottom.png); }
