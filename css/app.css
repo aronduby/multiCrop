@@ -1,9 +1,15 @@
-/* not part of plugin */
-.multi-crop .img-holder .json{
-  display:none;
+.container{
+  max-width:960px;
+  margin:auto;
 }
 
+
+/*
+ * Plug-in Styles
+*/
+
 .multi-crop{
+  display:flex;
   position:relative;
   width:100%;
 }
@@ -17,13 +23,15 @@
      *  Image Holder - left side, has bounds
     */
     .multi-crop .img-holder{
-      
-      display:inline-block;
-      width:80%;
-      padding:2px;
       line-height:0;
-      background:#000;
     }
+      .multi-crop .img-holder .padder{
+        padding:2px;
+        background:#000;
+      }
+      .multi-crop.png .img-holder .padder{
+        background:#000 url(../imgs/transparency-checkers.png);
+      }
       .multi-crop .img-holder img{
         max-width:100%;
         pointer-events:none;
@@ -46,6 +54,12 @@
           box-shadow ease .2s,
           opacity ease .2s;
       }
+        .multi-crop .bound .bg{
+          position:absolute;
+          top:0; right:0;
+          bottom:0; left:0;
+          opacity:.6;
+        }
 
         .multi-crop .img-holder.dim .bound{
           opacity:.1;
@@ -57,10 +71,21 @@
           box-shadow:0 0 11px;
           opacity:1;
         }
+          .multi-crop .bound.hover .bg,
+          .multi-crop .img-holder.dim .bound.hover .bg,
+          .multi-crop .img-holder.dim .bound.ui-draggable-dragging .bg,
+          .multi-crop .img-holder.dim .bound.ui-resizable-resizing .bg{
+            opacity:1;
+          }
+          
         .multi-crop .bound.active{
           box-shadow:0 0 22px;
           opacity:1;
         }
+          .multi-crop .bound.active .bg{
+            opacity:1;
+          }
+
           .multi-crop .bound label{
             position:absolute;
             top:-1.6em;
@@ -78,47 +103,58 @@
      *  Bounds Data - right side
     */
     .multi-crop .bounds-data{
-      display:inline-block;
-      width:20%;
-      min-width:220px;
+      min-width:252px;
       line-height:1.4em;
+      flex:1;
+      overflow-y:auto;
     }
 
       .multi-crop .bounds-data ul{
         list-style:none;
-        margin:0;
-        padding:0 10px;
+        margin:0 0 0 5px;
+        padding:0;
       }
         .multi-crop .bounds-data li{
-          padding:4px 8px;
+          padding:0;
           margin:2px 0;
-          border-left:5px solid #f00;
-          opacity:.5;/* was diming with interaction, decided I didn't like that */
-          opacity:1;
-        }
-        .multi-crop .bounds-data li:hover,
-        .multi-crop .bounds-data li.hover{
-          opacity:.8;
-          opacity:1;
-        }
-        .multi-crop .bounds-data li.active{
-          opacity:1;
         }
 
-        .multi-crop .bounds-data p{
-          margin:0 0 5px 0;
+        .multi-crop .bounds-data li header{
+          padding:2px 5px;
+          text-transform:capitalize;
+          color:#fff;
+          cursor:pointer;
         }
-          .multi-crop .bounds-data p.name{
-            text-transform:capitalize;
+          .multi-crop .bounds-data li header:before{
+            content:'+';
+            font-weight:bold;
+            margin-right:4px;
           }
+
+        .multi-crop .bounds-data li div{
+          display:none;
+        }
 
         .multi-crop .bounds-data canvas{
           max-width:100%;
           max-height:200px;
         }
+        .multi-crop.png .bounds-data canvas{
+          background:url(../imgs/transparency-checkers.png);
+        }
 
-      .multi-crop .bounds-data textarea{
-        display:none;
+
+      .multi-crop .bounds-data li.open header:before,
+      .multi-crop .bounds-data li.active header:before{
+        content:'-';
+      }
+      .multi-crop .bounds-data li.open div,
+      .multi-crop .bounds-data li.active div{
+        display:block;
+        padding:5px;
+      }
+      .multi-crop .bounds-data p{
+        margin:0 0 5px 0;
       }
 
 
