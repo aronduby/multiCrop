@@ -1,5 +1,57 @@
 $(document).ready(function(){
 
+	$('#img_uploader').each(function(){
+		$(this).data('fileUploader', new FileUploader($(this), {
+			callback: function(file){				
+				if(file.type != 'undefined' && file.type.match(/image.*/i)){
+					if($('.crop-holder img').length)
+							$('.crop-holder img, .crop-holder .multi-crop').remove();
+					$('.crop-holder').addClass('loading');
+
+					var reader = new FileReader();
+					reader.onload = function(e){
+						var img = $('<img />')
+							.attr({
+								src: this.result,
+								alt: file.name,
+								title: file.name,
+								class: 'crop'
+							})
+							.appendTo( $('.crop-holder') );
+
+						var mc = new MultiCrop(img, {
+							bounds: [{
+									"name": "fit",
+									"type": 'fit',
+									'finalWidth': 800,
+									'finalHeight': 800
+								}, {
+									"name":"banner",
+									"aspectRatio":1.7778,
+									"finalWidth": 640,
+									"finalHeight": 360
+								}, {
+									"name":"thumbnail",
+									"aspectRatio":1,
+									"finalWidth": 100,
+									"finalHeight": 100				
+							}]
+						});						
+						img.data('mc', mc);
+						mc.img_loaded.then(function(){
+							$('.crop-holder').removeClass('loading');
+						});
+					}
+					reader.readAsDataURL(file);
+				} else {
+					alert('unsupported file type, please just use images (jpg, png, gif)');
+				}				
+			},
+			fallbackCallback: console.log
+		}));
+	});
+	
+	/*
 	$('img.crop').each(function(){
 		$(this).data('mc', new MultiCrop($(this),{
 			bounds: [{
@@ -20,7 +72,117 @@ $(document).ready(function(){
 			}]
 		}));
 	});
+	*/
 });
+
+
+
+function FileUploader(file_el, opts){
+	var settings = {
+		fileName: '',
+		buttonClass: '',
+		buttonValue: 'Choose a File',
+		fileReaderCallback: $.noop, // full support, gets a FileReader and File as args
+		fallbackCallback: $.noop // fallback for non FileReader, just gets the file name
+	};
+	opts = $.extend({}, settings, opts);
+
+	var wrapper = $('<div class="file-uploader-wrap"></div>').insertBefore(file_el);
+
+	file_el
+		.css({
+			'opacity':0,
+			'position': 'absolute',
+			'left':'-999999px'
+		})
+		.appendTo(wrapper);
+
+	var filetrigger = $('<button type="button" class="'+opts.buttonClass+'">'+opts.buttonValue+'</button>')
+			.on('click', function(){
+				file_el.trigger('click');
+			})
+			.insertBefore(file_el),
+		filename = $('<strong class="filename">'+opts.fileName+'</strong>').insertBefore(file_el);
+
+
+
+	if(typeof FileList != 'undefined'){	
+		file_el.on('change', function(e){
+			processFiles( $(this)[0].files );
+		});
+
+		// drag and drop uploading
+		// first we test the drag'n'drop (taken from modernizer)
+		var div = document.createElement('div');
+		if( ('draggable' in div) || ('ondragstart' in div && 'ondrop' in div) ){
+			var dragOutTimer = 0;
+
+			wrapper.append('<div class="drop_notifier">Drop Files Here</div>')
+				.on({
+					dragenter: function(){
+						$(this).addClass('drag-over');
+						$(this).data('dragentered', true);
+						dragOutTimer = setInterval(function(){
+							wrapper.trigger('dragout');	
+						}, 1000);
+						return false;
+					},
+					dragover: function(){
+						return false;
+					},
+					mouseout: function(){
+						$(this).data('dragentered', false);
+					},
+					dragout: function(){
+						if($(this).data('dragentered') == false){
+							$(this).removeClass('hover');
+							clearInterval(dragOutTimer);
+						}
+					},
+					drop: function (e) {
+						var files;
+						$(this).removeClass('drag-over');
+						
+						e = e || window.event;
+						e.preventDefault();
+						// jQuery wraps the originalEvent, so we try to detect that here...
+						e = e.originalEvent || e;
+
+						// Using e.files with fallback because e.dataTransfer is immutable and can't be overridden in Polyfills (http://sandbox.knarly.com/js/dropfiles/).            
+						files = (e.files || e.dataTransfer.files);
+						processFiles(files);
+						return false;
+					}
+				});
+		}
+
+	} else {
+		file_el.on('change', function(e){
+			var new_name = $(this).val().replace("C:\\fakepath\\", '');
+			if(opts.fallbackCallback(new_name) !== false)
+				filename.text(new_name);
+		});
+	}
+
+	function processFiles(files){
+		for(var i=0; i<files.length; i++){
+			(function (i) { // Loop through our files with a closure so each of our FileReader's are isolated.
+				var file = files[i];
+
+				// safari catch, name = fileName, size = fileSize, no type
+				if(typeof file.fileName != 'undefined'){
+					file.name = file.fileName;
+					file.size = file.fileSize;
+				}
+
+				if(opts.callback(file) !== false)
+					filename.text(file.name);
+			})(i);						
+		}
+	}
+}
+
+
 
 
 
